@@ -39,59 +39,58 @@ public class Main {
         //   es.submit(new SingleNumberPrinterV2(i));
         // }
 
-        ArrayList<Integer> list0 = new ArrayList<>();
-        for(int i=1; i<=10; i++){
-          list0.add(i);
-        }
-        ArrayListModifier arrayListModifier = new ArrayListModifier(list0);
-        Future<ArrayList<Integer>> doubleList = es.submit(arrayListModifier);
-        System.out.println(doubleList.get());
+        // ArrayList<Integer> list0 = new ArrayList<>();
+        // for(int i=1; i<=10; i++){
+        //   list0.add(i);
+        // }
+        // ArrayListModifier arrayListModifier = new ArrayListModifier(list0);
+        // Future<ArrayList<Integer>> doubleList = es.submit(arrayListModifier);
+        // System.out.println(doubleList.get());
 
-        ArrayList<Integer> list = new ArrayList<>();
-        list.add(10);
-        list.add(1);
-        list.add(5);
-        list.add(3);
-        list.add(7);
-        list.add(2);
-        list.add(8);
-        list.add(6);
-        list.add(4);
-        list.add(9);
-
-        Sorter sortingTask = new Sorter(list);
-        Future<ArrayList<Integer>> sorted = es.submit(sortingTask);
-        System.out.println(sorted.get());
+        // ArrayList<Integer> list = new ArrayList<>();
+        // list.add(10);
+        // list.add(1);
+        // list.add(5);
+        // list.add(3);
+        // list.add(7);
+        // list.add(2);
+        // list.add(8);
+        // list.add(6);
+        // list.add(4);
+        // list.add(9);
+        // Sorter sortingTask = new Sorter(list);
+        // Future<ArrayList<Integer>> sorted = es.submit(sortingTask);
+        // System.out.println(sorted.get());
 
         // ExecutorService es = Executors.newCachedThreadPool();g
 
-        // Value v1 = new Value(0);
-        // AdderWithSyncronization adderWithSyncronization = new AdderWithSyncronization(v1);
-        // SubWithSyncronization subWithSyncronization = new SubWithSyncronization(v1);
-        // Future<Void> addFWithSyncronization =  es.submit(adderWithSyncronization);
-        // Future<Void> subFWithSyncronization =  es.submit(subWithSyncronization);
-        // addFWithSyncronization.get();
-        // subFWithSyncronization.get();
-        // System.out.println("with syncronization:"+v1.data);  
+        Value v1 = new Value(0);
+        AdderWithSyncronization adderWithSyncronization = new AdderWithSyncronization(v1);
+        SubWithSyncronization subWithSyncronization = new SubWithSyncronization(v1);
+        Future<Void> addFWithSyncronization =  es.submit(adderWithSyncronization);
+        Future<Void> subFWithSyncronization =  es.submit(subWithSyncronization);
+        addFWithSyncronization.get();
+        subFWithSyncronization.get();
+        System.out.println("with syncronization:"+v1.data);  
         
-        Value v2 = new Value(0);
-        Adder adder = new Adder(v2);
-        Sub sub = new Sub(v2);
-        Future<Void> addF =  es.submit(adder);
-        Future<Void> subF =  es.submit(sub);
-        addF.get();
-        subF.get();
-        System.out.println("without lock: "+v2.data);
+        // Value v2 = new Value(0);
+        // Adder adder = new Adder(v2);
+        // Sub sub = new Sub(v2);
+        // Future<Void> addF =  es.submit(adder);
+        // Future<Void> subF =  es.submit(sub);
+        // addF.get();
+        // subF.get();
+        // System.out.println("without lock: "+v2.data);
 
-        // Value v3 = new Value(0);
-        // Lock lock = new ReentrantLock();
-        // AdderWithLock adderWithLock = new AdderWithLock(v3, lock);
-        // SubWithLock subWithLock = new SubWithLock(v3, lock);
-        // Future<Void> addFWithLock =  es.submit(adderWithLock);
-        // Future<Void> subFWithLock =  es.submit(subWithLock);
-        // addFWithLock.get();
-        // subFWithLock.get();
-        // System.out.println("with lock: "+v3.data);     
+        Value v3 = new Value(0);
+        Lock lock = new ReentrantLock();
+        AdderWithLock adderWithLock = new AdderWithLock(v3, lock);
+        SubWithLock subWithLock = new SubWithLock(v3, lock);
+        Future<Void> addFWithLock =  es.submit(adderWithLock);
+        Future<Void> subFWithLock =  es.submit(subWithLock);
+        addFWithLock.get();
+        subFWithLock.get();
+        System.out.println("with lock: "+v3.data);     
         
         // 1.Critical Section: Part of code that works on shared data
         // 2.Race Condition: When multiple threads are trying to access critical section
@@ -190,72 +189,72 @@ public class Main {
 //   }
 // }
 
-class ArrayListModifier implements Callable<ArrayList<Integer>>{
-  ArrayList<Integer> list;
-  ArrayListModifier(ArrayList<Integer> list){
-    this.list = list;
-  }
-  public ArrayList<Integer> call(){
-    ArrayList<Integer> doubleList = new ArrayList<>();
-    for(int i=0; i<list.size(); i++){
-      doubleList.add(list.get(i)*2);
-    }
-    return doubleList;
-  }
-}
+// class ArrayListModifier implements Callable<ArrayList<Integer>>{
+//   ArrayList<Integer> list;
+//   ArrayListModifier(ArrayList<Integer> list){
+//     this.list = list;
+//   }
+//   public ArrayList<Integer> call(){
+//     ArrayList<Integer> doubleList = new ArrayList<>();
+//     for(int i=0; i<list.size(); i++){
+//       doubleList.add(list.get(i)*2);
+//     }
+//     return doubleList;
+//   }
+// }
 
-class Sorter implements Callable<ArrayList<Integer>> {
-  ArrayList<Integer> listToSort;
-  Sorter(ArrayList<Integer> listToSort) {
-    this.listToSort = listToSort;
-  }
-  @Override
-  public ArrayList<Integer> call() throws InterruptedException, ExecutionException {
-    if (listToSort.size() <= 1) return listToSort;
-    int mid = listToSort.size() / 2;
-    ArrayList<Integer> left = getSubList(listToSort, 0, mid - 1);
-    ArrayList<Integer> right = getSubList(listToSort, mid, listToSort.size() - 1);
-    ExecutorService es = Executors.newFixedThreadPool(5);
-    Sorter leftSort = new Sorter(left);
-    Sorter rightSort = new Sorter(right);
-    Future<ArrayList<Integer>> leftSorted = es.submit(leftSort);
-    Future<ArrayList<Integer>> rightSorted = es.submit(rightSort);
-    ArrayList<Integer> sortedLeft = leftSorted.get();
-    ArrayList<Integer> sortedRight = rightSorted.get();
-    es.shutdown(); 
-    return merge(sortedLeft, sortedRight);
-  }
-  public ArrayList<Integer> getSubList(ArrayList<Integer> list, int start, int end) {
-    ArrayList<Integer> subList = new ArrayList<>();
-    for (int i = start; i <= end; i++) {
-      subList.add(list.get(i));
-    }
-    return subList;
-  }
-  public ArrayList<Integer> merge(ArrayList<Integer> left, ArrayList<Integer> right) {
-    ArrayList<Integer> merged = new ArrayList<>();
-    int leftIndex = 0;
-    int rightIndex = 0;
-    while (leftIndex < left.size() && rightIndex < right.size()) {
-      if (left.get(leftIndex) < right.get(rightIndex)) {
-        merged.add(left.get(leftIndex));
-        leftIndex++;
-      } else {
-        merged.add(right.get(rightIndex));
-        rightIndex++;
-      }
-    }
-    while (leftIndex < left.size()) {
-      merged.add(left.get(leftIndex));
-      leftIndex++;
-    }
-    while (rightIndex < right.size()) {
-      merged.add(right.get(rightIndex));
-      rightIndex++;
-    }
-    return merged;
-  }
-}
+// class Sorter implements Callable<ArrayList<Integer>> {
+//   ArrayList<Integer> listToSort;
+//   Sorter(ArrayList<Integer> listToSort) {
+//     this.listToSort = listToSort;
+//   }
+//   @Override
+//   public ArrayList<Integer> call() throws InterruptedException, ExecutionException {
+//     if (listToSort.size() <= 1) return listToSort;
+//     int mid = listToSort.size() / 2;
+//     ArrayList<Integer> left = getSubList(listToSort, 0, mid - 1);
+//     ArrayList<Integer> right = getSubList(listToSort, mid, listToSort.size() - 1);
+//     ExecutorService es = Executors.newFixedThreadPool(5);
+//     Sorter leftSort = new Sorter(left);
+//     Sorter rightSort = new Sorter(right);
+//     Future<ArrayList<Integer>> leftSorted = es.submit(leftSort);
+//     Future<ArrayList<Integer>> rightSorted = es.submit(rightSort);
+//     ArrayList<Integer> sortedLeft = leftSorted.get();
+//     ArrayList<Integer> sortedRight = rightSorted.get();
+//     es.shutdown(); 
+//     return merge(sortedLeft, sortedRight);
+//   }
+//   public ArrayList<Integer> getSubList(ArrayList<Integer> list, int start, int end) {
+//     ArrayList<Integer> subList = new ArrayList<>();
+//     for (int i = start; i <= end; i++) {
+//       subList.add(list.get(i));
+//     }
+//     return subList;
+//   }
+//   public ArrayList<Integer> merge(ArrayList<Integer> left, ArrayList<Integer> right) {
+//     ArrayList<Integer> merged = new ArrayList<>();
+//     int leftIndex = 0;
+//     int rightIndex = 0;
+//     while (leftIndex < left.size() && rightIndex < right.size()) {
+//       if (left.get(leftIndex) < right.get(rightIndex)) {
+//         merged.add(left.get(leftIndex));
+//         leftIndex++;
+//       } else {
+//         merged.add(right.get(rightIndex));
+//         rightIndex++;
+//       }
+//     }
+//     while (leftIndex < left.size()) {
+//       merged.add(left.get(leftIndex));
+//       leftIndex++;
+//     }
+//     while (rightIndex < right.size()) {
+//       merged.add(right.get(rightIndex));
+//       rightIndex++;
+//     }
+//     return merged;
+//   }
+// }
 
 class Value {
    int data;
@@ -264,100 +263,100 @@ class Value {
     }
 }
 
-class Adder implements Callable<Void>{
-  Value v1;
-  public Adder(Value v1){
-    this.v1 = v1;
-  }
-  @Override
-  public Void call(){
-    for(int i=0; i<=1000; i++){
-      v1.data+=i;
-    }
-    return null;
-  }
-}
-
-class Sub implements Callable<Void>{
-  Value v1;
-  public Sub(Value v1){
-    this.v1 = v1;
-  }
-  @Override
-  public Void call(){
-    for(int i=0; i<=1000; i++){
-      v1.data-=i;
-    }
-    return null;
-  }
-}
-
-// class AdderWithLock implements Callable<Void>{
+// class Adder implements Callable<Void>{
 //   Value v1;
-//   Lock lock;
-//   public AdderWithLock(Value v1, Lock lock){
+//   public Adder(Value v1){
 //     this.v1 = v1;
-//     this.lock = lock;
 //   }
 //   @Override
 //   public Void call(){
 //     for(int i=0; i<=1000; i++){
-//       lock.lock();
 //       v1.data+=i;
-//       lock.unlock();
 //     }
 //     return null;
 //   }
 // }
 
-// class SubWithLock implements Callable<Void>{
+// class Sub implements Callable<Void>{
 //   Value v1;
-//   Lock lock;
-//   public SubWithLock(Value v1, Lock lock){
+//   public Sub(Value v1){
 //     this.v1 = v1;
-//     this.lock = lock;
 //   }
 //   @Override
 //   public Void call(){
 //     for(int i=0; i<=1000; i++){
-//       lock.lock();
 //       v1.data-=i;
-//       lock.unlock();
 //     }
 //     return null;
 //   }
 // }
 
-// class AdderWithSyncronization implements Callable<Void>{
-//   Value v1;
-//   public AdderWithSyncronization(Value v1){
-//     this.v1 = v1;
-//   }
-//   @Override
-//   public Void call(){
-//     for(int i=0; i<=1000; i++){
-//       synchronized(v1){
-//         v1.data+=i;
-//       }
-//     }
-//     return null;
-//   }
-// }
+class AdderWithLock implements Callable<Void>{
+  Value v1;
+  Lock lock;
+  public AdderWithLock(Value v1, Lock lock){
+    this.v1 = v1;
+    this.lock = lock;
+  }
+  @Override
+  public Void call(){
+    for(int i=0; i<=1000; i++){
+      lock.lock();
+      v1.data+=i;
+      lock.unlock();
+    }
+    return null;
+  }
+}
 
-// class SubWithSyncronization implements Callable<Void>{
-//   Value v1;
-//   public SubWithSyncronization(Value v1){
-//     this.v1 = v1;
-//   }
-//   @Override
-//   public Void call(){
-//     for(int i=0; i<=1000; i++){
-//       synchronized(v1){
-//         v1.data-=i;
-//       }
-//     }
-//     return null;
-//   }
-// }
+class SubWithLock implements Callable<Void>{
+  Value v1;
+  Lock lock;
+  public SubWithLock(Value v1, Lock lock){
+    this.v1 = v1;
+    this.lock = lock;
+  }
+  @Override
+  public Void call(){
+    for(int i=0; i<=1000; i++){
+      lock.lock();
+      v1.data-=i;
+      lock.unlock();
+    }
+    return null;
+  }
+}
+
+class AdderWithSyncronization implements Callable<Void>{
+  Value v1;
+  public AdderWithSyncronization(Value v1){
+    this.v1 = v1;
+  }
+  @Override
+  public Void call(){
+    for(int i=0; i<=1000; i++){
+      synchronized(v1){
+        v1.data+=i;
+      }
+    }
+    return null;
+  }
+}
+
+class SubWithSyncronization implements Callable<Void>{
+  Value v1;
+  public SubWithSyncronization(Value v1){
+    this.v1 = v1;
+  }
+  @Override
+  public Void call(){
+    for(int i=0; i<=1000; i++){
+      synchronized(v1){
+        v1.data-=i;
+      }
+    }
+    return null;
+  }
+}
 
 
