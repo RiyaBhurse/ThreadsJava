@@ -71,7 +71,7 @@ public class Main {
         Future<Void> subFWithSyncronization =  es.submit(subWithSyncronization);
         addFWithSyncronization.get();
         subFWithSyncronization.get();
-        System.out.println("with syncronization:"+v1.data);  
+        System.out.println("with syncronization:"+v1.getData());  
         
         // Value v2 = new Value(0);
         // Adder adder = new Adder(v2);
@@ -90,20 +90,21 @@ public class Main {
         Future<Void> subFWithLock =  es.submit(subWithLock);
         addFWithLock.get();
         subFWithLock.get();
-        System.out.println("with lock: "+v3.data);     
+        System.out.println("with lock: "+v3.getData());     
         
         // 1.Critical Section: Part of code that works on shared data
-        // 2.Race Condition: When multiple threads are trying to access critical section
+        // 2.Race Condition: When multiple threads are trying to access critical section at the same time
         // 3.Preemptive OS: OS that can stop a thread at any time
-        // when three of them are there then we will have Syncronization issue
+        //   when three of them are there then we will have Syncronization issue
+        // Syncronization actually means that only one thread can access the critical section at a time
         //  Solution for Synchronized: 
         // 1. Mutual Exclusion: Only one thread can access critical section at a time
         //    No race condition
         // 2. Progress: Overall application should keep making some progress
         // 3. Bounded Waiting: W
-      //    There should be a limit on how long a thread can wait
-      // 4. No Busy Waiting:they should not be checking if cpu is free or not
-      //    ambani's marriage and washroom example 
+        //    There should be a limit on how long a thread can wait
+        // 4. No Busy Waiting:they should not be checking if cpu is free or not
+        //    ambani's marriage and washroom example 
 
 
       // Actual solution:
@@ -257,39 +258,51 @@ public class Main {
 // }
 
 class Value {
-   int data;
+    private int data;
     Value(int data) {
       this.data = data;
     }
+    synchronized public int getData() {
+      return data;
+    }
+    synchronized public void setData(int data) {
+      this.data = data;
+    }
+    public void add(int a){
+      this.data += a;
+    }
+    public void sub(int a){
+      this.data -= a;
+    }
 }
 
-// class Adder implements Callable<Void>{
-//   Value v1;
-//   public Adder(Value v1){
-//     this.v1 = v1;
-//   }
-//   @Override
-//   public Void call(){
-//     for(int i=0; i<=1000; i++){
-//       v1.data+=i;
-//     }
-//     return null;
-//   }
-// }
+class Adder implements Callable<Void>{
+  Value v1;
+  public Adder(Value v1){
+    this.v1 = v1;
+  }
+  @Override
+  public Void call(){
+    for(int i=0; i<=1000; i++){
+      v1.setData(i+v1.getData());
+    }
+    return null;
+  }
+}
 
-// class Sub implements Callable<Void>{
-//   Value v1;
-//   public Sub(Value v1){
-//     this.v1 = v1;
-//   }
-//   @Override
-//   public Void call(){
-//     for(int i=0; i<=1000; i++){
-//       v1.data-=i;
-//     }
-//     return null;
-//   }
-// }
+class Sub implements Callable<Void>{
+  Value v1;
+  public Sub(Value v1){
+    this.v1 = v1;
+  }
+  @Override
+  public Void call(){
+    for(int i=0; i<=1000; i++){
+      this.v1.setData(v1.getData()-i);
+    }
+    return null;
+  }
+}
 
 class AdderWithLock implements Callable<Void>{
   Value v1;
@@ -302,7 +315,7 @@ class AdderWithLock implements Callable<Void>{
   public Void call(){
     for(int i=0; i<=1000; i++){
       lock.lock();
-      v1.data+=i;
+      this.v1.setData(i+v1.getData());
       lock.unlock();
     }
     return null;
@@ -320,7 +333,7 @@ class SubWithLock implements Callable<Void>{
   public Void call(){
     for(int i=0; i<=1000; i++){
       lock.lock();
-      v1.data-=i;
+      v1.setData(v1.getData()-i);
       lock.unlock();
     }
     return null;
@@ -336,7 +349,7 @@ class AdderWithSyncronization implements Callable<Void>{
   public Void call(){
     for(int i=0; i<=1000; i++){
       synchronized(v1){
-        v1.data+=i;
+        v1.setData(i+v1.getData());
       }
     }
     return null;
@@ -352,11 +365,13 @@ class SubWithSyncronization implements Callable<Void>{
   public Void call(){
     for(int i=0; i<=1000; i++){
       synchronized(v1){
-        v1.data-=i;
+        v1.setData(v1.getData()-i);
       }
     }
     return null;
   }
 }
+
+
 
 
